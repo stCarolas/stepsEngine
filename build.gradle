@@ -1,0 +1,87 @@
+buildscript {
+    repositories {
+        maven { url 'http://mvn/artifactory/public' }
+        maven { url 'http://mvn/artifactory/gradleplugins' }
+        jcenter()
+    }
+    
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0"
+        classpath 'com.netflix.nebula:nebula-release-plugin:4.1.0'
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.4'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.2.RELEASE")
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:2.2.+'
+    }
+}
+plugins {
+    id 'org.springframework.boot' version '1.5.8.RELEASE'
+}
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web:1.5.8.RELEASE")
+    compile("org.thymeleaf:thymeleaf-spring4:2.1.5.RELEASE")
+    compile("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:1.4.0")
+}
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'maven-publish'
+apply plugin: 'nebula.nebula-release'
+apply plugin: 'io.spring.dependency-management'
+
+sourceCompatibility = '1.8'
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+repositories {
+    maven { url 'http://mvn/artifactory/public' }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.0'
+    distributionUrl="http://mvn/artifactory/gradle-wrapper-remote-cache/distributions/gradle-$gradleVersion-bin.zip"
+}
+
+publishing {
+    publications {
+        artifact(MavenPublication) {
+            groupId 'ru.alfabank.pipe'
+            artifactId 'steps-engine'
+
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            name        "alfaSnapshots"
+            url         "http://mvn/artifactory/snapshots"
+            credentials {
+                username = System.env.ARTIFACTORY_USER
+                password = System.env.ARTIFACTORY_PASSWORD
+            }
+        }
+        maven {
+            name        "alfaReleases"
+            url         "http://mvn/artifactory/releases"
+            credentials {
+                username = System.env.ARTIFACTORY_USER
+                password = System.env.ARTIFACTORY_PASSWORD
+            }
+        }
+    }
+}
+
+task printDeps {
+  doLast{
+    def out = new File("deps")
+    if (out.exists()) {
+        out.delete()
+    }
+    print project.configurations
+    def projectDependencies = project.configurations.compile.getAllDependencies().withType(ProjectDependency)
+    def deps = project.configurations.runtime.getAllDependencies()
+    out.createNewFile()
+    deps.each {
+        out << "${it.group}:${it.name}:${it.version}\n"
+    }
+  }
+}
