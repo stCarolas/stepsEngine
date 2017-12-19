@@ -8,14 +8,6 @@ public class EnricherWithResources implements CanEnrichProcess {
 
     public void enrich(ru.alfabank.stepsengine.core.Process process){
         Resources resourceDepot = new Resources();
-        process.addStep(
-            Stage.PROCESS_START, 
-            new ResourceSearcher(process, resourceDepot)
-        );
-        process.addStep(
-            Stage.STEP_START, 
-            new ResourceInjector(process, resourceDepot)
-        );
     }
         
 }

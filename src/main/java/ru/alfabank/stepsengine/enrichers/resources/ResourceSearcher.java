@@ -17,6 +17,6 @@ public class ResourceSearcher implements CanExecute {
         this.depot = depot;
     }
 
-    public ExecutionResult execute() { }
+    public ExecutionResult execute() { return null; }
 
 }

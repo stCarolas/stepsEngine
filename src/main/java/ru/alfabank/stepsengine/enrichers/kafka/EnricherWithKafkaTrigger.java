@@ -3,6 +3,7 @@ package ru.alfabank.stepsengine.enrichers.kafka;
 import java.util.*;
 import ru.alfabank.stepsengine.api.*;
 import ru.alfabank.stepsengine.core.*;
+import ru.alfabank.stepsengine.kafka.*;
 import java.util.stream.*;
 
 public class EnricherWithKafkaTrigger<T> implements CanEnrichProcess {
@@ -19,32 +20,32 @@ public class EnricherWithKafkaTrigger<T> implements CanEnrichProcess {
     }
 
     public void enrich(ru.alfabank.stepsengine.core.Process process) {
-        List<Stage> stages = process.getStages();
-        for (int i = 0, j = 1; 
-             j < stages.size(); 
-             j++, i++
-        ) {
-            Stage current = stages.get(i);
-            Stage next = stages.get(j);
+        //List<Stage> stages = process.getStages();
+        //for (int i = 0, j = 1; 
+             //j < stages.size(); 
+             //j++, i++
+        //) {
+            //Stage current = stages.get(i);
+            //Stage next = stages.get(j);
 
-            current.addStageStartHandler(
-                new StartStageHandler(
-                    current,
-                    formName(current),
-                    formName(next)
-                )
-            );
-        }
+            //current.addStageStartHandler(
+                //new StartStageHandler(
+                    //current,
+                    //formName(current),
+                    //formName(next)
+                //)
+            //);
+        //}
     }
 
-    private String formName(Stage stage) {
-        if (stage instanceof HasName) {
-            return ((HasName) stage).getName();
+    private String formName(CanExecute step) {
+        if (step instanceof HasName) {
+            return ((HasName) step).getName();
         }
-        return formAutomaticName(stage);
+        return formAutomaticName(step);
     }
 
-    private String formAutomaticName(Stage stage) {
-        return stage.getClass().getName();
+    private String formAutomaticName(CanExecute step) {
+        return step.getClass().getName();
     }
 }
